@@ -14,11 +14,15 @@ class ResponseController extends Controller
 		$campaign_response = $api_client->fetch_campaigns();
 		$campaign_id = $campaign_response['data'][0]['id'];
 		$postsUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/posts?fields[post]=title,content,is_public,published_at,url';
-		try {
-			$posts = PatreonController::getPosts($postsUrl, $access_token);
-			//$patrons = PatreonController::getPatrons();
 
-			dd($posts);
+		$membersUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/members?fields[member]=patron_status';
+
+		// $membersUrl = 'https://www.patreon.com/api/oauth2/api/campaigns/' .$campaign_id . '/pledges?include=patron.null';
+		try {
+			//$posts = PatreonController::getPosts($postsUrl, $access_token);
+			$patrons = PatreonController::getPatrons($membersUrl, $access_token);
+
+			dd($patrons);
 		} catch (Exception $e) {
 			var_dump($e);
 		}

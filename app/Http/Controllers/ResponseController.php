@@ -19,10 +19,14 @@ class ResponseController extends Controller
 
 		// $membersUrl = 'https://www.patreon.com/api/oauth2/api/campaigns/' .$campaign_id . '/pledges?include=patron.null';
 		try {
-			//$posts = PatreonController::getPosts($postsUrl, $access_token);
+			$posts = PatreonController::getPosts($postsUrl, $access_token);
 			$patrons = PatreonController::getPatrons($membersUrl, $access_token);
+			$data = [
+				'patrons' => $patrons,
+				'posts' => $posts
+			];
 
-			dd($patrons);
+			dd(json_encode($data));
 		} catch (Exception $e) {
 			var_dump($e);
 		}

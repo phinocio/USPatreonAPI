@@ -11,7 +11,6 @@ class PatreonController extends Controller
 
 	public static function getPatrons($url, $access_token) 
 	{
-		// TODO: Cache the list of patrons, and if it's x hours old, refresh it.
 		$patronCache = \App\Models\PatronCache::first();
 
 		if(!$patronCache) {
@@ -23,12 +22,29 @@ class PatreonController extends Controller
 
 	public static function getPosts($url, $access_token) 
 	{
+		$postCache = \App\Models\PostCache::first();
+
+		if (!$postCache) {
+			$postCache = PatreonController::generatePosts($url, $access_token);
+		}
+
+		return json_decode($postCache->posts);
+	}
+
+	public static function generatePosts($url, $access_token) 
+	{
 		$allPosts = [];
 		$resp = Http::withToken($access_token)->get($url);
 		
 
 		foreach ($resp['data'] as $post) {
 			if ($post['attributes']['is_public'] != false) {
+				$post = [
+					'title' => $post['attributes']['title'],
+					'content' => $post['attributes']['content'],
+					'published' => $post['attributes']['published_at'],
+					'url' => $post['attributes']['url']
+				];
 				array_push($allPosts, $post);
 			}
 		}
@@ -40,6 +56,12 @@ class PatreonController extends Controller
 			
 			foreach ($resp['data'] as $post) {
 				if ($post['attributes']['is_public'] != false) {
+					$post = [
+						'title' => $post['attributes']['title'],
+						'content' => $post['attributes']['content'],
+						'published' => $post['attributes']['published_at'],
+						'url' => $post['attributes']['url']
+					];
 					array_push($allPosts, $post);
 				}
 			}
@@ -49,12 +71,17 @@ class PatreonController extends Controller
 			} else {
 				$nextLink = false;
 			}
-			dump($resp->json());
 		}
+		$cache = \App\Models\PostCache::first();
 
-		dd($allPosts);
+		if (!$cache) {
+			$cache = new \App\Models\PostCache();
+			echo 'no cache';
+		}
+		$cache->posts = json_encode(array_reverse($allPosts));
+		$cache->save();
 
-		return $allPosts;
+		return $cache;
 	}
 
 	private static function getPatronIDs($url, $access_token)

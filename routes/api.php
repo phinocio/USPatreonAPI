@@ -15,4 +15,4 @@ use App\Http\Controllers\ResponseController;
 |
 */
 
-Route::get('/', [ResponseController::class, 'index']);
+Route::get('/patreon', [ResponseController::class, 'index']);

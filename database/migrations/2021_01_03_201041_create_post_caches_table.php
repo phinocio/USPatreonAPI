@@ -27,6 +27,6 @@ class CreatePostCachesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('post_caches');
+        Schema::dropIfExists('post_cache');
     }
 }

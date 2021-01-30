@@ -26,7 +26,7 @@ class ResponseController extends Controller
 				'posts' => $posts
 			];
 
-			dd(json_encode($data));
+			return $data;
 		} catch (Exception $e) {
 			var_dump($e);
 		}

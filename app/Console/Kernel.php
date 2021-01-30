@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\UpdatePatronCache::class
+		Commands\UpdatePatronCache::class,
+		Commands\UpdatePostCache::class
     ];
 
     /**
@@ -26,6 +27,7 @@ class Kernel extends ConsoleKernel
     {
 		// $schedule->command('inspire')->hourly();
 		$schedule->command('update:patroncache')->daily();
+		$schedule->command('update:postcache')->daily();
     }
 
     /**

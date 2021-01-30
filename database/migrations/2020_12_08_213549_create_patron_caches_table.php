@@ -27,6 +27,6 @@ class CreatePatronCachesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('patron_caches');
+        Schema::dropIfExists('patron_cache');
     }
 }

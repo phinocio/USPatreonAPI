@@ -16,4 +16,4 @@ use App\Http\Controllers\ResponseController;
 */
 
 Route::get('/patreon', [ResponseController::class, 'index']);
-Route::get('/patreon/update', [ResponseController::class, 'update']);
+Route::patch('/patreon/update', [ResponseController::class, 'update']);

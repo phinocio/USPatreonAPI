@@ -38,7 +38,7 @@ class UpdatePostCache extends Command
      */
     public function handle()
     {
-		$access_token = env('PATREON_TOKEN');
+		$access_token = config('app.patreon_token');
 		$api_client = new \Patreon\API($access_token);
 		$campaign_response = $api_client->fetch_campaigns();
 		$campaign_id = $campaign_response['data'][0]['id'];

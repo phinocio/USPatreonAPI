@@ -17,7 +17,7 @@ class PatreonController extends Controller
 			$patronCache = PatreonController::generatePatrons($url, $access_token);
 		}
 		
-		return $patronCache->patrons;
+		return json_decode($patronCache->patrons);
 	}
 
 	public static function getPosts($url, $access_token) 
@@ -84,56 +84,23 @@ class PatreonController extends Controller
 		return $cache;
 	}
 
-	private static function getPatronIDs($url, $access_token)
-	{
-		$allPatronIDs = [];
-		$resp = Http::withToken($access_token)->get($url);
-
-		foreach ($resp['data'] as $patron) {
-			if ($patron['attributes']['patron_status'] == 'active_patron') {
-				array_push($allPatronIDs, $patron);
-			}
-		}
-
-		$nextLink = $resp['links']['next'];
-
-		while ($nextLink != false) {
-			$resp = Http::withToken($access_token)->get($nextLink);
-
-			foreach ($resp['data'] as $patron) {
-				if ($patron['attributes']['patron_status'] == 'active_patron') {
-					array_push($allPatronIDs, $patron);
-				}
-			}
-
-			if (isset($resp['links']['next'])) {
-				$nextLink = $resp['links']['next'];
-			} else {
-				$nextLink = false;
-			}
-		}
-
-		return $allPatronIDs;
-	}
-
 	public static function generatePatrons($url, $access_token)
 	{
-		$IDs = PatreonController::getPatronIDs($url, $access_token);
-		$patrons = [];
+		$activePatronIDs = [];
+		$activePatronNames = [];
+		$resp = Http::withToken($access_token)->get($url);
 
-		foreach ($IDs as $id) {
-			$resp = Http::withToken($access_token)->get('https://patreon.com/api/oauth2/v2/members/' . $id['id'] . '?include=user&fields[user]=first_name,full_name,vanity');
-
-			array_push($patrons, $resp['included'][0]['attributes']);
+		// Get a list of all IDs for active patrons.
+		foreach ($resp['data'] as $patron) {
+			if ($patron['attributes']['patron_status'] == 'active_patron') {
+				array_push($activePatronIDs, $patron['relationships']['user']['data']['id']);
+			}
 		}
 
-		// Convert to CSV then save to DB.
-		$patronCSV = '';
-		foreach($patrons as $patron) {
-			if($patron['vanity']) {
-				$patronCSV .= trim($patron['vanity']) . ', ';
-			} else {
-				$patronCSV .= trim($patron['full_name']) . ', ';
+		// Loop through the list of active patron IDs compared to the included user info to build the names array
+		foreach ($resp['included'] as $user) {
+			if (in_array($user['id'], $activePatronIDs)) {
+				array_push($activePatronNames, $user['attributes']['vanity'] ? trim($user['attributes']['vanity']) : trim($user['attributes']['full_name']));
 			}
 		}
 
@@ -143,7 +110,7 @@ class PatreonController extends Controller
 			$cache = new \App\Models\PatronCache();		
 		}
 
-		$cache->patrons = $patronCSV;
+		$cache->patrons = json_encode($activePatronNames);
 		$cache->save();
 
 		return $cache;

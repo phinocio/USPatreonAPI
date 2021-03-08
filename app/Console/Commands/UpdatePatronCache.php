@@ -43,7 +43,7 @@ class UpdatePatronCache extends Command
 		$campaign_response = $api_client->fetch_campaigns();
 		$campaign_id = $campaign_response['data'][0]['id'];
 
-		$membersUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/members?fields[member]=patron_status';
+		$membersUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/members?page[size]=3000&include=user&fields[user]=first_name,full_name,vanity&fields[member]=patron_status';
 
 		PatreonController::generatePatrons($membersUrl, $access_token);
 

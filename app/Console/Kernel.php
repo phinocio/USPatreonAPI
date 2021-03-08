@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 		// $schedule->command('inspire')->hourly();
-		$schedule->command('update:patroncache')->daily();
+		$schedule->command('update:patroncache')->everyFiveMinutes();
 		$schedule->command('update:postcache')->daily();
     }
 

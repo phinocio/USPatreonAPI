@@ -13,7 +13,7 @@ class PatreonController extends Controller
 	{
 		$patronCache = \App\Models\PatronCache::first();
 
-		if (true || !$patronCache) {
+		if (!$patronCache) {
 			$patronCache = PatreonController::generatePatrons($url, $access_token);
 		}
 
@@ -111,7 +111,7 @@ class PatreonController extends Controller
 				if ($tier['attributes']['title'] == 'Champion') {
 					$tier['attributes']['title'] = 'Super Patron';
 				}
-				
+
 				array_push($tiers, $tier);
 			}
 		}

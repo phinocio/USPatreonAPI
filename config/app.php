@@ -3,6 +3,8 @@
 return [
 	'patreon_token' => env('PATREON_TOKEN', ''),
 	'patreon_refresh' => env('PATREON_REFRESH', ''),
+	'patreon_client' => env('PATREON_CLIENT', ''),
+	'patreon_secret' => env('PATREON_SECRET', ''),
     /*
     |--------------------------------------------------------------------------
     | Application Name

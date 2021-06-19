@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Token;
 use Illuminate\Console\Command;
 use App\Http\Controllers\PatreonController;
 
@@ -12,14 +13,14 @@ class UpdatePatronCache extends Command
      *
      * @var string
      */
-    protected $signature = 'update:patroncache';
+    protected $signature = 'patreon:patroncache';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Update the DB cache of patrons.';
+protected $description = 'Update the DB cache of Patrons';
 
     /**
      * Create a new command instance.
@@ -38,7 +39,7 @@ class UpdatePatronCache extends Command
      */
     public function handle()
     {
-		$access_token = config('app.patreon_token');
+		$access_token = Token::first()->access;
 		$api_client = new \Patreon\API($access_token);
 		$campaign_response = $api_client->fetch_campaigns();
 		$campaign_id = $campaign_response['data'][0]['id'];
@@ -46,6 +47,8 @@ class UpdatePatronCache extends Command
 		$membersUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/members?page[size]=3000&include=user,currently_entitled_tiers&fields[tier]=title&fields[user]=full_name,vanity&fields[member]=full_name,patron_status';
 
 		PatreonController::generatePatrons($membersUrl, $access_token);
+
+		$this->info('Patron cache updated');
 
         return 0;
     }

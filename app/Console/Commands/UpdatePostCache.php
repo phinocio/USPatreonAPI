@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Http\Controllers\PatreonController;
+use App\Models\Token;
 
 class UpdatePostCache extends Command
 {
@@ -12,14 +13,14 @@ class UpdatePostCache extends Command
      *
      * @var string
      */
-    protected $signature = 'update:postcache';
+    protected $signature = 'patreon:postcache';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Update the DB cache of Posts';
 
     /**
      * Create a new command instance.
@@ -38,7 +39,7 @@ class UpdatePostCache extends Command
      */
     public function handle()
     {
-		$access_token = config('app.patreon_token');
+		$access_token = Token::first()->access;
 		$api_client = new \Patreon\API($access_token);
 		$campaign_response = $api_client->fetch_campaigns();
 		$campaign_id = $campaign_response['data'][0]['id'];
@@ -47,6 +48,8 @@ class UpdatePostCache extends Command
 
 		PatreonController::generatePosts($postsUrl, $access_token);
 
+		$this->info('Post cache updated');
+		
 		return 0;
     }
 }

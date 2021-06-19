@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\PatreonController;
 use Exception;
+use App\Models\Token;
+use Carbon\Carbon;
 
 class ResponseController extends Controller
 {
 	public function index()
 	{
-		$access_token = config('app.patreon_token');
+		$access_token = Token::first()->access;
 		$api_client = new \Patreon\API($access_token);
 		$campaign_response = $api_client->fetch_campaigns();
 		$campaign_id = $campaign_response['data'][0]['id'];
+
+		
 		$postsUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/posts?fields[post]=title,content,is_public,published_at,url';
 
 		$membersUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/members?page[size]=3000&include=user,currently_entitled_tiers&fields[tier]=title&fields[user]=full_name,vanity&fields[member]=full_name,patron_status';

@@ -39,8 +39,8 @@ class ResponseController extends Controller
 	public function update()
 	{
 		try {
-			\Artisan::call('update:patroncache');
-			\Artisan::call('update:postcache');
+			\Artisan::call('patreon:patreoncache');
+			\Artisan::call('patreon:postcache');
 			return response()->json([
 				'message' => 'Patron and Post caches updated successfully',
 				'status' => 200

@@ -54,7 +54,7 @@ class RefreshPatreonToken extends Command
 		if(Carbon::now() > $token->expires) {
 			$url = "https://patreon.com/api/oauth2/token?grant_type=refresh_token&refresh_token=" . $token->refresh . "&client_id=" . $token->client;
 			$response = \Http::post($url);
-	
+
 			$token->access = $response['access_token'];
 			$token->refresh = $response['refresh_token'];
 			$token->expires_in = $response['expires_in'];

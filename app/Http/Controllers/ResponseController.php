@@ -12,10 +12,10 @@ class ResponseController extends Controller
 {
 	public function index()
 	{
-		$access_token = ''; // TEMP FIX UNTIL I GET NEW TOKENS Token::first()->access;
+		$access_token = Token::first()->access;
 		$api_client = new \Patreon\API($access_token);
 		$campaign_response = $api_client->fetch_campaigns();
-		$campaign_id = 'meow'; // TEMP FIX UNTIL I GET NEW TOKENS $campaign_response['data'][0]['id'];
+		$campaign_id = $campaign_response['data'][0]['id'];
 
 		
 		$postsUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/posts?fields[post]=title,content,is_public,published_at,url';

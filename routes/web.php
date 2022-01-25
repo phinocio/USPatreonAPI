@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('/api/patreon');
 });
+
+Route::get('/admin/site-metrics', function () {
+	return File::get(resource_path('/static/report.html'));
+});

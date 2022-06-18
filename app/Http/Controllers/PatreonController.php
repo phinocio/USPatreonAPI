@@ -13,7 +13,7 @@ class PatreonController extends Controller
 	{
 		$patronCache = \App\Models\PatronCache::first();
 
-		if ($patronCache) {
+		if (!$patronCache) {
 			$patronCache = PatreonController::generatePatrons($url, $access_token);
 		}
 

@@ -13,7 +13,7 @@ class PatreonController extends Controller
 	{
 		$patronCache = \App\Models\PatronCache::first();
 
-		if (!$patronCache) {
+		if ($patronCache) {
 			$patronCache = PatreonController::generatePatrons($url, $access_token);
 		}
 
@@ -87,11 +87,27 @@ class PatreonController extends Controller
 		$activePatronIDs = [];
 		$activePatronNames = [];
 		$resp = Http::withToken($access_token)->get($url);
+		$respPatrons = $resp['data'];
+		$respIncluded = $resp['included'];
 		$tiers = [];
 
+		do {
+			$resp = Http::withToken($access_token)->get($resp['links']['next']);
+			foreach ($resp['data'] as $patron) {
+				array_push($respPatrons, $patron);
+			}
+			
+			if (array_key_exists('included', $resp->json())) {
+				foreach ($resp['included'] as $included) {
+					array_push($respIncluded, $included);
+				}
+			}
+		} while(array_key_exists('links', $resp->json()));
+
 		// Get a list of all IDs for active patrons.
-		foreach ($resp['data'] as $patron) {
+		foreach ($respPatrons as $patron) {
 			if ($patron['attributes']['patron_status'] == 'active_patron') {
+				// dump($patron);
 				$userID = $patron['relationships']['user']['data']['id'];
 				$tierID = $patron['relationships']['currently_entitled_tiers']['data'] ? $patron['relationships']['currently_entitled_tiers']['data'][0]['id'] : '';
 
@@ -100,7 +116,7 @@ class PatreonController extends Controller
 		}
 
 		// Get a list of tiers
-		foreach ($resp['included'] as $tier) {
+		foreach ($respIncluded as $tier) {
 			if ($tier['type'] == 'tier') {
 				// Convert Adoring Fan to Patron
 				if ($tier['attributes']['title'] == 'Adoring Fan') {
@@ -117,9 +133,10 @@ class PatreonController extends Controller
 		}
 
 		// Loop through the list of active patron IDs compared to the included user info to build the names array
-		foreach ($resp['included'] as $user) {
+		foreach ($respIncluded as $user) {
 			foreach ($activePatronIDs as $id) {
 				if ($user['id'] == $id['userID']) {
+					
 					$name = $user['attributes']['vanity'] ? trim($user['attributes']['vanity']) : trim($user['attributes']['full_name']);
 
 					$tierName = '';
@@ -132,10 +149,9 @@ class PatreonController extends Controller
 	
 					array_push($activePatronNames, ['name' => $name, 'tier' => $tierName]);
 				}
-
 			}
 		}
-
+		dd($activePatronNames);
 		$cache = \App\Models\PatronCache::first();
 
 		if (!$cache) {

@@ -151,7 +151,6 @@ class PatreonController extends Controller
 				}
 			}
 		}
-		dd($activePatronNames);
 		$cache = \App\Models\PatronCache::first();
 
 		if (!$cache) {

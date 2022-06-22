@@ -7,6 +7,7 @@ use App\Http\Controllers\PatreonController;
 use Exception;
 use App\Models\Token;
 use Carbon\Carbon;
+use Facade\Ignition\SolutionProviders\LazyLoadingViolationSolutionProvider;
 
 class ResponseController extends Controller
 {
@@ -53,5 +54,14 @@ class ResponseController extends Controller
 			], 500);
 		}
 		
+	}
+
+	public function lastUpdated() {
+		$lastPatronsUpdated = \App\Models\PatronCache::orderBy('updated_at', 'desc')->pluck('updated_at');
+		$lastPostsUpdated = \App\Models\PostCache::orderBy('updated_at', 'desc')->pluck('updated_at');
+
+		return [
+			"last_updated" => $lastPostsUpdated[0]->timestamp > $lastPatronsUpdated[0]->timestamp ? $lastPostsUpdated[0]->timestamp : $lastPatronsUpdated[0]->timestamp
+		];
 	}
 }

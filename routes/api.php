@@ -17,3 +17,4 @@ use App\Http\Controllers\ResponseController;
 
 Route::get('/patreon', [ResponseController::class, 'index']);
 Route::patch('/patreon/update', [ResponseController::class, 'update']);
+Route::get('/last-updated', [ResponseController::class, 'lastUpdated']);

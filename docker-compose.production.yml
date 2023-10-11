@@ -26,7 +26,7 @@ services:
     image: wl-patreon-api:latest
     container_name: wl-patreon-api-app
     restart: unless-stopped
-    entrypoint: sh -c "php artisan config:cache && php artisan route:cache && exec php-fpm"
+    entrypoint: sh -c "php artisan migrate && php artisan config:cache && php artisan route:cache && exec php-fpm"
     env_file: .env
     user: "2000:2000"
     ports:

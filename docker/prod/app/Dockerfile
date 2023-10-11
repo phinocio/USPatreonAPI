@@ -15,7 +15,7 @@ ARG user=lolapi
 ARG uid=2000
 RUN adduser -u $uid -D $user
 
-WORKDIR /srv/ultsky.phinocio.com.com
+WORKDIR /srv/ultsky.phinocio.com
 
 # Install system deps
 RUN apk update && apk add \
@@ -38,7 +38,7 @@ RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 # Copy project to container
 COPY --from=build-prod /app .
 
-RUN chown -R $user:$user /srv/ultsky.phinocio.com.com
+RUN chown -R $user:$user /srv/ultsky.phinocio.com
 
 USER $user
 

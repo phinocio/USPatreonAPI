@@ -18,7 +18,7 @@ class ResponseController extends Controller
 		$campaign_response = $api_client->fetch_campaigns();
 		$campaign_id = $campaign_response['data'][0]['id'];
 
-		
+
 		$postsUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/posts?fields[post]=title,content,is_public,published_at,url';
 
 		$membersUrl = 'https://patreon.com/api/oauth2/v2/campaigns/' . $campaign_id . '/members?page[size]=1000&include=user,currently_entitled_tiers&fields[tier]=title&fields[user]=full_name,vanity&fields[member]=full_name,patron_status';
@@ -53,10 +53,10 @@ class ResponseController extends Controller
 				'status' => 500
 			], 500);
 		}
-		
 	}
 
-	public function lastUpdated() {
+	public function lastUpdated()
+	{
 		$lastPatronsUpdated = \App\Models\PatronCache::orderBy('updated_at', 'desc')->pluck('updated_at');
 		$lastPostsUpdated = \App\Models\PostCache::orderBy('updated_at', 'desc')->pluck('updated_at');
 

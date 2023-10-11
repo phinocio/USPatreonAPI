@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
     entrypoint: sh -c "php artisan migrate --force && php artisan config:cache && php artisan route:cache && exec php-fpm"
     env_file: .env
-    user: "2000:2000"
+    user: "2100:2100"
     ports:
       - "127.0.0.1:9000:9000"
     volumes:

@@ -11,7 +11,7 @@ RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-interacti
 # Production App
 FROM php:8.2-fpm-alpine3.18 as app-prod
 
-ARG user=lolapi
+ARG user=wl-patreon
 ARG uid=2000
 RUN adduser -u $uid -D $user
 

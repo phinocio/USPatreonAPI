@@ -32,7 +32,7 @@ services:
     ports:
       - "127.0.0.1:9000:9000"
     volumes:
-      - ./storage:/srv/api.loadorderlibrary.com/storage
+      - ./storage:/srv/ultsky.phinocio.com/storage
     networks:
       - wl-patreon
       - wl-patreon-db

@@ -12,7 +12,7 @@ RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-interacti
 FROM php:8.2-fpm-alpine3.18 as app-prod
 
 ARG user=wl-patreon
-ARG uid=2000
+ARG uid=2100
 RUN adduser -u $uid -D $user
 
 WORKDIR /srv/ultsky.phinocio.com

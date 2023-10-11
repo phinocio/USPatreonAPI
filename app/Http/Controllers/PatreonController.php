@@ -35,6 +35,7 @@ class PatreonController extends Controller
 	{
 		$allPosts = [];
 		$resp = Http::withToken($access_token)->get($url);
+        $resp = $resp->json();
 
 		foreach ($resp['data'] as $post) {
 			if ($post['attributes']['is_public'] != false) {
@@ -47,7 +48,12 @@ class PatreonController extends Controller
 				array_push($allPosts, $post);
 			}
 		}
-		$nextLink = $resp['links']['next'];
+
+        if (array_key_exists('links', $resp)) {
+            $nextLink = $resp['links']['next'];
+        } else {
+            $nextLink = false;
+        }
 
 		while ($nextLink != false) {
 			$resp = Http::withToken($access_token)->get($nextLink);
@@ -74,7 +80,6 @@ class PatreonController extends Controller
 
 		if (!$cache) {
 			$cache = new \App\Models\PostCache();
-			echo 'no cache';
 		}
 		$cache->posts = json_encode(array_reverse($allPosts));
 		$cache->save();
@@ -87,22 +92,23 @@ class PatreonController extends Controller
 		$activePatronIDs = [];
 		$activePatronNames = [];
 		$resp = Http::withToken($access_token)->get($url);
-		$respPatrons = $resp['data'];
-		$respIncluded = $resp['included'];
-		$tiers = [];
+        $respPatrons = $resp['data'];
+        $respIncluded = $resp['included'];
+        $tiers = [];
 
-		do {
-			$resp = Http::withToken($access_token)->get($resp['links']['next']);
+        while(array_key_exists('links', $resp->json())) {
+            $resp = Http::withToken($access_token)->get($resp['links']['next']);
+            $resp = $resp->json();
 			foreach ($resp['data'] as $patron) {
 				array_push($respPatrons, $patron);
 			}
-			
+
 			if (array_key_exists('included', $resp->json())) {
 				foreach ($resp['included'] as $included) {
 					array_push($respIncluded, $included);
 				}
 			}
-		} while(array_key_exists('links', $resp->json()));
+		}
 
 		// Get a list of all IDs for active patrons.
 		foreach ($respPatrons as $patron) {
@@ -136,17 +142,17 @@ class PatreonController extends Controller
 		foreach ($respIncluded as $user) {
 			foreach ($activePatronIDs as $id) {
 				if ($user['id'] == $id['userID']) {
-					
+
 					$name = $user['attributes']['vanity'] ? trim($user['attributes']['vanity']) : trim($user['attributes']['full_name']);
 
 					$tierName = '';
-	
+
 					foreach ($tiers as $tier) {
 						if ($tier['id'] == $id['tierID']) {
 							$tierName = $tier['attributes']['title'];
 						}
 					}
-	
+
 					array_push($activePatronNames, ['name' => $name, 'tier' => $tierName]);
 				}
 			}

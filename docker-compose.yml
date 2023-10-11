@@ -1,0 +1,63 @@
+# Local Development docker-compose File.
+services:
+    db:
+        image: mariadb:10.9
+        container_name: patreon-api-db
+        restart: unless-stopped
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_USER: ${DB_USERNAME}
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mariadb
+        volumes:
+            - patreon-api-db:/var/lib/mysql
+        networks:
+            - wl-api-db
+    app:
+        build:
+            context: .
+            args:
+                uid: 1000
+                gid: 2010
+            dockerfile: docker/local/app/Dockerfile
+            target: dev
+        image: wl-patreon-api:dev
+        entrypoint: sh -c "php artisan migrate && exec php-fpm"
+        container_name: wl-patreon-api-app
+        restart: unless-stopped
+        volumes:
+            - ./:/srv/ultsky.phinocio.com
+        networks:
+            - wl-api
+            - wl-api-db
+        depends_on: [db]
+
+    nginx:
+        image: nginx:1.25.0-alpine
+        container_name: wl-patreon-api-nginx
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./public:/srv/ultsky.phinocio.com/public
+            - ./docker/local/nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./docker/local/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+            - ./docker/local/nginx/log:/var/log/nginx
+        networks:
+            - wl-api
+        depends_on: [app]
+
+networks:
+    wl-api:
+        name: wl-api
+        external: true
+    wl-api-db:
+        name: wl-api-db
+        external: true
+
+volumes:
+    patreon-api-db:

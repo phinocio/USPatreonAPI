@@ -1,0 +1,48 @@
+# Docker compose file for production environment
+
+services:
+  db:
+    image: mariadb:10.9
+    container_name: wl-patreon-prod-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_NAME: mariadb
+    volumes:
+      - wl-patreon-prod-db:/var/lib/mysql
+    networks:
+      - wl-patreon-db
+  app:
+    build:
+      context: .
+      args:
+        uid: 1000
+        gid: 2010
+      dockerfile: docker/prod/app/Dockerfile
+      target: app-prod
+    image: wl-patreon-api:latest
+    container_name: wl-patreon-api-app
+    restart: unless-stopped
+    entrypoint: sh -c "php artisan config:cache && php artisan route:cache && exec php-fpm"
+    env_file: .env
+    user: "2000:2000"
+    ports:
+      - "127.0.0.1:9000:9000"
+    volumes:
+      - ./storage:/srv/api.loadorderlibrary.com/storage
+    networks:
+      - wl-patreon
+      - wl-patreon-db
+    depends_on: [db]
+
+networks:
+  wl-patreon:
+    external: true
+  wl-patreon-db:
+    external: true
+
+volumes:
+  wl-patreon-prod-db:

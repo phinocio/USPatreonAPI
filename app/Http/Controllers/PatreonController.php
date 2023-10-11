@@ -35,7 +35,7 @@ class PatreonController extends Controller
 	{
 		$allPosts = [];
 		$resp = Http::withToken($access_token)->get($url);
-        $resp = $resp->json();
+		$resp = $resp->json();
 
 		foreach ($resp['data'] as $post) {
 			if ($post['attributes']['is_public'] != false) {
@@ -49,11 +49,11 @@ class PatreonController extends Controller
 			}
 		}
 
-        if (array_key_exists('links', $resp)) {
-            $nextLink = $resp['links']['next'];
-        } else {
-            $nextLink = false;
-        }
+		if (array_key_exists('links', $resp)) {
+			$nextLink = $resp['links']['next'];
+		} else {
+			$nextLink = false;
+		}
 
 		while ($nextLink != false) {
 			$resp = Http::withToken($access_token)->get($nextLink);
@@ -92,18 +92,19 @@ class PatreonController extends Controller
 		$activePatronIDs = [];
 		$activePatronNames = [];
 		$resp = Http::withToken($access_token)->get($url);
-        $respPatrons = $resp['data'];
-        $respIncluded = $resp['included'];
-        $tiers = [];
+		$resp = $resp->json();
+		$respPatrons = $resp['data'];
+		$respIncluded = $resp['included'];
+		$tiers = [];
 
-        while(array_key_exists('links', $resp->json())) {
-            $resp = Http::withToken($access_token)->get($resp['links']['next']);
-            $resp = $resp->json();
+		while (array_key_exists('links', $resp)) {
+			$resp = Http::withToken($access_token)->get($resp['links']['next']);
+			$resp = $resp->json();
 			foreach ($resp['data'] as $patron) {
 				array_push($respPatrons, $patron);
 			}
 
-			if (array_key_exists('included', $resp->json())) {
+			if (array_key_exists('included', $resp)) {
 				foreach ($resp['included'] as $included) {
 					array_push($respIncluded, $included);
 				}

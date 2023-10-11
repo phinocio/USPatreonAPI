@@ -19,8 +19,8 @@ services:
     build:
       context: .
       args:
-        uid: 1000
-        gid: 2010
+        uid: 2100
+        gid: 2100
       dockerfile: docker/prod/app/Dockerfile
       target: app-prod
     image: wl-patreon-api:latest
